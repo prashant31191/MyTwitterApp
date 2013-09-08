@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">i2weeter</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_photos">Flickr Photos</string>
+    <string name="login_label">Log in</string>
+    <string name="title_activity_home_timeline">Home</string>
+    <string name="refresh_menu_label">Refresh</string>
+    <string name="compose_menu_label">Compose</string>
+    <string name="title_activity_compose_tweet"></string>
+    <string name="user_image_label">User Image</string>
+    <string name="compose_tweet_hint">What\'s happening?</string>
+
+</resources>
