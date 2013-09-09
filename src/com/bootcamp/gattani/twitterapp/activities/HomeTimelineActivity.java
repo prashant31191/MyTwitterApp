@@ -28,7 +28,7 @@ public class HomeTimelineActivity extends Activity {
 	private ArrayList<Tweet> tweets;
 	private TweetsAdapter tweetLvAdapter;
 	private MenuItem refreshItem;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,29 +48,29 @@ public class HomeTimelineActivity extends Activity {
 				Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
 			}
 		});
-		
-		lvTweets.setOnScrollListener(new EndlessScrollListener() {
-    	    @Override
-    	    public void loadMore(int page, int totalItemsCount) {  	    
-    			if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
-    				RequestParams rparams = new RequestParams();
-    				rparams.put("max_id", String.valueOf(tweets.get(tweets.size() - 1).getTweetId()));
-        			//get timeline feed
-        			MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
-        				@Override
-        				public void onSuccess(JSONArray jsonTweets){
-        					tweets.addAll(Tweet.fromJson(jsonTweets));
-        					Collections.sort(tweets);
-        					tweetLvAdapter.notifyDataSetChanged();
-        					Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-        				}
-        			});
 
-    			} else {
-    				Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
-    			}    			
-    	    }
-    	});
+		lvTweets.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void loadMore(int page, int totalItemsCount) {  	    
+				if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
+					RequestParams rparams = new RequestParams();
+					rparams.put("max_id", String.valueOf(tweets.get(tweets.size() - 1).getTweetId()));
+					//get timeline feed
+					MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
+						@Override
+						public void onSuccess(JSONArray jsonTweets){
+							tweets.addAll(Tweet.fromJson(jsonTweets));
+							Collections.sort(tweets);
+							tweetLvAdapter.notifyDataSetChanged();
+							Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
+						}
+					});
+
+				} else {
+					Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
+				}    			
+			}
+		});
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class HomeTimelineActivity extends Activity {
 			refreshItem = item;
 			refreshItem.setActionView(R.layout.action_refresh);
 			refreshItem.expandActionView();
-			
+
 			RequestParams rparams = null;
 			if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
 				rparams = new RequestParams();
@@ -97,10 +97,10 @@ public class HomeTimelineActivity extends Activity {
 				//max limit of tweets for timeline that rest api supports
 				tweets.clear();
 			}
-			
+
 			//scroll to top
 			lvTweets.smoothScrollToPosition(0);
-			
+
 			//get timeline feed
 			MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
 				@Override
@@ -109,23 +109,23 @@ public class HomeTimelineActivity extends Activity {
 					Collections.sort(tweets);
 					tweetLvAdapter.notifyDataSetChanged();
 					refreshItem.collapseActionView();
-				    refreshItem.setActionView(null);
+					refreshItem.setActionView(null);
 					Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
 				}
 			});
 			break;
-			
+
 		case R.id.menu_compose:
 			Intent i = new Intent(getBaseContext(), ComposeTweetActivity.class);
 			startActivityForResult(i, ComposeTweetActivity.COMPOSE_TWEET_ACTIVITY_ID);
 			break;
-			
+
 		default:
 			break;
 		}
 		return true;
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == ComposeTweetActivity.COMPOSE_TWEET_ACTIVITY_ID) {
@@ -138,10 +138,10 @@ public class HomeTimelineActivity extends Activity {
 					//max limit of tweets for timeline that rest api supports
 					tweets.clear();
 				}
-				
+
 				//scroll to top
 				lvTweets.smoothScrollToPosition(0);
-				
+
 				//get timeline feed
 				MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
 					@Override

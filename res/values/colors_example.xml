@@ -19,4 +19,5 @@
 
 <resources>
     <color name="pressed_example">#CC33B5E5</color>
+    <color name="gray_color">#CCCCCC</color>
 </resources>

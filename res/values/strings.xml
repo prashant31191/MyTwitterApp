@@ -9,6 +9,7 @@
     <string name="title_activity_home_timeline">Home</string>
     <string name="refresh_menu_label">Refresh</string>
     <string name="compose_menu_label">Compose</string>
+    <string name="tweet_count">140</string>
     <string name="title_activity_compose_tweet"></string>
     <string name="user_image_label">User Image</string>
     <string name="compose_tweet_hint">What\'s happening?</string>

@@ -35,4 +35,8 @@ public class MyTwitterApp extends com.activeandroid.app.Application {
     public static TwitterClient getRestClient() {
     	return (TwitterClient) TwitterClient.getInstance(TwitterClient.class, MyTwitterApp.context);
     }
+    
+    public static ConnectionDetector getConnectionDetector() {
+    	return ConnectionDetector.getInstance(MyTwitterApp.context);
+    }
 }
