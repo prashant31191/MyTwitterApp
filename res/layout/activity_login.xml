@@ -8,12 +8,25 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoggedOutActivity" >
 
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/twitter_icon_text"
+        android:src="@drawable/ic_twitter_icon" />
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView1"
         android:layout_centerHorizontal="true"
         android:layout_margin="20dp"
+        android:layout_marginTop="64dp"
         android:onClick="loginToRest"
+        android:background="@drawable/btn_blue"
+        style="@style/ButtonText"
         android:text="@string/login_label" />
 
 </RelativeLayout>

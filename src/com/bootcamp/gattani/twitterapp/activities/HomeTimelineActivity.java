@@ -119,7 +119,13 @@ public class HomeTimelineActivity extends Activity {
 			Intent i = new Intent(getBaseContext(), ComposeTweetActivity.class);
 			startActivityForResult(i, ComposeTweetActivity.COMPOSE_TWEET_ACTIVITY_ID);
 			break;
-
+			
+		case R.id.action_logout:
+			Intent logout = new Intent(getBaseContext(), LoggedOutActivity.class);
+			logout.putExtra("action", "logout");
+			startActivity(logout); 
+			break;
+			
 		default:
 			break;
 		}

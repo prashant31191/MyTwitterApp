@@ -15,12 +15,34 @@ public class LoggedOutActivity extends OAuthLoginActivity<TwitterClient> {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
+
+		Bundle extras = getIntent().getExtras();
+	    if (extras != null) {
+		    String action = extras.getString("action");
+		    if("logout".equalsIgnoreCase(action)){
+		    	getClient().clearAccessToken();
+		    }
+	    }
+
+	}
+
+	@Override
+	protected void onResume(){
+		Bundle extras = getIntent().getExtras();
+	    if (extras != null) {
+		    String action = extras.getString("action");
+		    if("logout".equalsIgnoreCase(action)){
+		    	getClient().clearAccessToken();
+		    }
+	    }
+	    	 
+		super.onResume();
 	}
 
 	// Inflate the menu; this adds items to the action bar if it is present.
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.login, menu);
+		//getMenuInflater().inflate(R.menu.login, menu);
 		return true;
 	}
 	

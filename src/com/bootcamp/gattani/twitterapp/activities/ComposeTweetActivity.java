@@ -172,6 +172,12 @@ public class ComposeTweetActivity extends Activity {
 				}
 			});
 			return true;
+			
+		case R.id.action_logout:
+			Intent logout = new Intent(getBaseContext(), LoggedOutActivity.class);
+			logout.putExtra("action", "logout");
+			startActivity(logout); 
+			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);
