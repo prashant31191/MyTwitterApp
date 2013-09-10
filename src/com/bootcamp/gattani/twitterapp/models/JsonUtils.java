@@ -3,15 +3,13 @@ package com.bootcamp.gattani.twitterapp.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class BaseModel {
+public class JsonUtils {
 	
-    protected JSONObject jsonObject;
-
-    public String getJSONString() {
+    public static String getJSONString(JSONObject jsonObject) {
         return jsonObject.toString();
     }
 
-    protected String getString(String name) {
+    protected static String getString(JSONObject jsonObject, String name) {
         try {
             return jsonObject.getString(name);
         } catch (JSONException e) {
@@ -20,7 +18,7 @@ public class BaseModel {
         }
     }
 
-    protected long getLong(String name) {
+    protected static long getLong(JSONObject jsonObject, String name) {
         try {
             return jsonObject.getLong(name);
         } catch (JSONException e) {
@@ -29,7 +27,7 @@ public class BaseModel {
         }
     }
 
-    protected int getInt(String name) {
+    protected static int getInt(JSONObject jsonObject, String name) {
         try {
             return jsonObject.getInt(name);
         } catch (JSONException e) {
@@ -38,7 +36,7 @@ public class BaseModel {
         }
     }
 
-    protected double getDouble(String name) {
+    protected static double getDouble(JSONObject jsonObject, String name) {
         try {
             return jsonObject.getDouble(name);
         } catch (JSONException e) {
@@ -47,7 +45,7 @@ public class BaseModel {
         }
     }
 
-    protected boolean getBoolean(String name) {
+    protected static boolean getBoolean(JSONObject jsonObject, String name) {
         try {
             return jsonObject.getBoolean(name);
         } catch (JSONException e) {
@@ -55,4 +53,6 @@ public class BaseModel {
             return false;
         }
     }
+
+
 }

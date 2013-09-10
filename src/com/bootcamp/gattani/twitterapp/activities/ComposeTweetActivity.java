@@ -29,6 +29,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 public class ComposeTweetActivity extends Activity {
 	public static final int COMPOSE_TWEET_ACTIVITY_ID = 101;
 	public static final int MAX_TWEET_SIZE = 140;
+	
 	private User currentUser;
 	ImageView ivMyProfilePicture;
 	TextView tvMyScreenName;
@@ -40,7 +41,8 @@ public class ComposeTweetActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_compose_tweet);
-		//navigating up
+		
+		// add navigating up
 		ActionBar actionBar = getActionBar();
 	    actionBar.setDisplayHomeAsUpEnabled(true);
 	    
@@ -83,6 +85,7 @@ public class ComposeTweetActivity extends Activity {
 				tvCharRemaining.setText(String.valueOf(tweetCharactersLeft));
 				
 				if(tweetCharactersLeft == 0 || tweetCharactersLeft == -1){
+					//change state of tweet button
 					invalidateOptionsMenu();
 				}
 				
@@ -132,17 +135,11 @@ public class ComposeTweetActivity extends Activity {
 			String tweetBody = etTweetBody.getText().toString();
 			if(StringUtils.isBlank(tweetBody)){
 				Toast.makeText(getApplicationContext(), "Tweet Discarded", Toast.LENGTH_SHORT).show();
-				Intent data = new Intent();
-				if (getParent() == null) {
-					setResult(Activity.RESULT_OK, data);
-				} else {
-					getParent().setResult(Activity.RESULT_OK, data);
-				}
-				finish();
+				returnToHomeTimeLine();
 			}
 
 			if(tweetBody.length() > 140){
-				Toast.makeText(getApplicationContext(), "DO NOT SHOW THIS", Toast.LENGTH_SHORT).show();
+				Log.d("DEBUG", "SHOULD NEVER GET HERE");
 				return true;
 			}
 
@@ -157,13 +154,7 @@ public class ComposeTweetActivity extends Activity {
 
 				@Override
 				public void onFinish() {
-					Intent data = new Intent();
-					if (getParent() == null) {
-						setResult(Activity.RESULT_OK, data);
-					} else {
-						getParent().setResult(Activity.RESULT_OK, data);
-					}
-					finish();
+					returnToHomeTimeLine();
 				}
 
 				@Override
@@ -182,6 +173,11 @@ public class ComposeTweetActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		Toast.makeText(getApplicationContext(), "Tweet Discarded", Toast.LENGTH_SHORT).show();
+		returnToHomeTimeLine();
+		super.onBackPressed();   
+	}
+	
+	private void returnToHomeTimeLine(){
 		Intent data = new Intent();
 		if (getParent() == null) {
 			setResult(Activity.RESULT_OK, data);
@@ -189,7 +185,6 @@ public class ComposeTweetActivity extends Activity {
 			getParent().setResult(Activity.RESULT_OK, data);
 		}
 		finish();
-		super.onBackPressed();   
 	}
 
 }

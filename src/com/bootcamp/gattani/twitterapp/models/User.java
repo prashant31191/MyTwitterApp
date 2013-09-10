@@ -2,38 +2,46 @@ package com.bootcamp.gattani.twitterapp.models;
 
 import org.json.JSONObject;
 
-public class User extends BaseModel{
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
 
+@Table(name = "Users")
+public class User extends Model {
+	
+	@Column(name = "JSONObject")
+    protected JSONObject jsonObject;
+	
 	public String getName() {
-        return getString("name");
+        return JsonUtils.getString(this.jsonObject, "name");
     }
 
     public long getUserId() {
-        return getLong("id");
+        return JsonUtils.getLong(this.jsonObject, "id");
     }
 
     public String getScreenName() {
-        return getString("screen_name");
+        return JsonUtils.getString(this.jsonObject, "screen_name");
     }
 
     public String getProfileImageUrl() {
-        return getString("profile_image_url");
+        return JsonUtils.getString(this.jsonObject, "profile_image_url");
     }
 
     public String getProfileBackgroundImageUrl() {
-        return getString("profile_background_image_url");
+        return JsonUtils.getString(this.jsonObject, "profile_background_image_url");
     }
 
     public int getNumTweets() {
-        return getInt("statuses_count");
+        return JsonUtils.getInt(this.jsonObject, "statuses_count");
     }
 
     public int getFollowersCount() {
-        return getInt("followers_count");
+        return JsonUtils.getInt(this.jsonObject, "followers_count");
     }
 
     public int getFriendsCount() {
-        return getInt("friends_count");
+        return JsonUtils.getInt(this.jsonObject, "friends_count");
     }
 
     public static User fromJson(JSONObject json) {
@@ -77,6 +85,5 @@ public class User extends BaseModel{
 		builder.append("]");
 		return builder.toString();
 	}
-    
-    
+        
 }

@@ -15,28 +15,6 @@ public class LoggedOutActivity extends OAuthLoginActivity<TwitterClient> {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-
-		Bundle extras = getIntent().getExtras();
-	    if (extras != null) {
-		    String action = extras.getString("action");
-		    if("logout".equalsIgnoreCase(action)){
-		    	getClient().clearAccessToken();
-		    }
-	    }
-
-	}
-
-	@Override
-	protected void onResume(){
-		Bundle extras = getIntent().getExtras();
-	    if (extras != null) {
-		    String action = extras.getString("action");
-		    if("logout".equalsIgnoreCase(action)){
-		    	getClient().clearAccessToken();
-		    }
-	    }
-	    	 
-		super.onResume();
 	}
 
 	// Inflate the menu; this adds items to the action bar if it is present.
@@ -63,7 +41,6 @@ public class LoggedOutActivity extends OAuthLoginActivity<TwitterClient> {
     
     // Click handler method for the button used to start OAuth flow
     // Uses the client to initiate OAuth authorization
-    // This should be tied to a button used to login
     public void loginToRest(View view) {
         getClient().connect();
     }

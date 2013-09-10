@@ -20,10 +20,12 @@
         android:theme="@style/Theme.Twitter" >
         <meta-data
             android:name="AA_DB_NAME"
-            android:value="RestClient.db" />
+            android:value="TwitterClient.db" />
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="1" />
+            android:value="2" />
+        <meta-data android:name="AA_SERIALIZERS" 
+      		android:value="com.bootcamp.gattani.twitterapp.adapters.JSONObjectSerializer" />
 
         <activity
             android:name="com.bootcamp.gattani.twitterapp.activities.LoggedOutActivity"

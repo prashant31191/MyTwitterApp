@@ -27,7 +27,14 @@ public class HomeTimelineActivity extends Activity {
 	private ListView lvTweets;
 	private ArrayList<Tweet> tweets;
 	private TweetsAdapter tweetLvAdapter;
-	private MenuItem refreshItem;
+	private MenuItem refreshProgressIndicator;
+	
+	private enum GET {
+		ON_LOAD,
+		ON_SCROLL,
+		ON_REFRESH
+	};
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,43 +46,32 @@ public class HomeTimelineActivity extends Activity {
 		lvTweets.setAdapter(tweetLvAdapter); 
 
 		//get timeline feed
-		MyTwitterApp.getRestClient().getHomeTimeline(null, new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(JSONArray jsonTweets){
-				tweets.addAll(Tweet.fromJson(jsonTweets));
-				Collections.sort(tweets);
-				tweetLvAdapter.notifyDataSetChanged();
-				Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-			}
-		});
+		getHomeTimeLineByInvoction(GET.ON_LOAD);
 
+		//setup the endless scroll
 		lvTweets.setOnScrollListener(new EndlessScrollListener() {
 			@Override
-			public void loadMore(int page, int totalItemsCount) {  	    
+			public void loadMore(int page, int totalItemsCount) {  	  
+				//artificially clipped to not load more than 200 tweets when scrolling 
 				if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
-					RequestParams rparams = new RequestParams();
-					rparams.put("max_id", String.valueOf(tweets.get(tweets.size() - 1).getTweetId()));
-					//get timeline feed
-					MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
-						@Override
-						public void onSuccess(JSONArray jsonTweets){
-							tweets.addAll(Tweet.fromJson(jsonTweets));
-							Collections.sort(tweets);
-							tweetLvAdapter.notifyDataSetChanged();
-							Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-						}
-					});
-
+					getHomeTimeLineByInvoction(GET.ON_SCROLL);
 				} else {
 					Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
 				}    			
 			}
 		});
+		
+		
+		if(MyTwitterApp.getConnectionDetector().isConnected()){
+			Toast.makeText(getBaseContext(), "Connected ...", Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(getBaseContext(), "No connection could be established ...", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
+		// Inflate the menu; this adds the compose and refresh
 		getMenuInflater().inflate(R.menu.home_timeline, menu);
 		return true;
 	}	
@@ -84,35 +80,10 @@ public class HomeTimelineActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
-			refreshItem = item;
-			refreshItem.setActionView(R.layout.action_refresh);
-			refreshItem.expandActionView();
-
-			RequestParams rparams = null;
-			if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
-				rparams = new RequestParams();
-				//rparams.put("max_id", String.valueOf(tweets.get(tweets.size() - 1).getTweetId()));
-				rparams.put("since_id", String.valueOf(tweets.get(0).getTweetId()));
-			} else {
-				//max limit of tweets for timeline that rest api supports
-				tweets.clear();
-			}
-
-			//scroll to top
-			lvTweets.smoothScrollToPosition(0);
-
-			//get timeline feed
-			MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
-				@Override
-				public void onSuccess(JSONArray jsonTweets){
-					tweets.addAll(Tweet.fromJson(jsonTweets));
-					Collections.sort(tweets);
-					tweetLvAdapter.notifyDataSetChanged();
-					refreshItem.collapseActionView();
-					refreshItem.setActionView(null);
-					Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-				}
-			});
+			refreshProgressIndicator = item;
+			refreshProgressIndicator.setActionView(R.layout.action_refresh);
+			refreshProgressIndicator.expandActionView();
+			getHomeTimeLineByInvoction(GET.ON_REFRESH);
 			break;
 
 		case R.id.menu_compose:
@@ -121,6 +92,8 @@ public class HomeTimelineActivity extends Activity {
 			break;
 			
 		case R.id.action_logout:
+			//logout and send to logged out activity
+			MyTwitterApp.getRestClient().clearAccessToken();
 			Intent logout = new Intent(getBaseContext(), LoggedOutActivity.class);
 			logout.putExtra("action", "logout");
 			startActivity(logout); 
@@ -136,31 +109,98 @@ public class HomeTimelineActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == ComposeTweetActivity.COMPOSE_TWEET_ACTIVITY_ID) {
 			if (resultCode == Activity.RESULT_OK) {
-				RequestParams rparams = null;
-				if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
-					rparams = new RequestParams();
-					rparams.put("since_id", String.valueOf(tweets.get(0).getTweetId()));
-				} else {
-					//max limit of tweets for timeline that rest api supports
-					tweets.clear();
-				}
-
-				//scroll to top
-				lvTweets.smoothScrollToPosition(0);
-
-				//get timeline feed
-				MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
-					@Override
-					public void onSuccess(JSONArray jsonTweets){
-						tweets.addAll(Tweet.fromJson(jsonTweets));
-						Collections.sort(tweets);
-						tweetLvAdapter.notifyDataSetChanged();
-						Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-					}
-				});				
+				getHomeTimeLineByInvoction(GET.ON_REFRESH);
 			}			
 		}
 	}
+	
+	/**
+	 * Constructs the parameters to call the Twitter API with and UI treatment 
+	 * based on user action.
+	 * 
+	 * @param invoked
+	 */
+	private void getHomeTimeLineByInvoction(GET invoked){
+		RequestParams rparams = null;
+		boolean overWriteLocal = false;;
+		boolean resetPosition = true;
+		
+		switch(invoked){
+		case ON_LOAD:
+			//not much to do here. this would get the default number of tweets and store them to db
+			rparams = null;
+			overWriteLocal = false;
+			resetPosition = false;
+			break;
+			
+		case ON_SCROLL:
+			//construct the request params to fetch only older tweets
+			if(tweets != null && !tweets.isEmpty()){
+				rparams = new RequestParams();
+				rparams.put("max_id", String.valueOf(tweets.get(tweets.size() - 1).getTweetId()));
+			} else {
+				rparams = null;
+			}
+			//set overwrite to true
+			overWriteLocal = true;
+			resetPosition = false;
+			break;
+			
+		case ON_REFRESH:
+			//request only the tweets that are newer than the latest we have
+			if(tweets != null && !tweets.isEmpty()){
+				rparams = new RequestParams();
+				rparams.put("since_id", String.valueOf(tweets.get(0).getTweetId()));
+			} else {
+				rparams = null;
+			}
+			
+			//set overwrite to true
+			overWriteLocal = true;
+			resetPosition = true;
+			break;
+		}		
+		
+		getHomeTimeline(rparams, overWriteLocal, resetPosition);
 
+	}
 
+	/**
+	 * Gets and persists the tweets from home_timline based on request parameters. Applies
+	 * UI treatment to scroll top and reset the refresh spinner
+	 *  
+	 * @param rparams
+	 * @param overWriteLocal
+	 * @param resetView
+	 */
+	private void getHomeTimeline(RequestParams rparams, final boolean overWriteLocal, final boolean resetView){		
+		//get timeline feed
+		MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(JSONArray jsonTweets){
+				tweets.addAll(Tweet.fromJson(jsonTweets));
+				Collections.sort(tweets);
+				Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
+				tweetLvAdapter.notifyDataSetChanged();
+				if(resetView){
+					//scroll to top
+					lvTweets.smoothScrollToPosition(0);
+				}
+				
+				if(overWriteLocal){
+				//	Tweet.overWriteTweets(tweets);					
+				} else {
+				//	Tweet.storeTweets(tweets);
+				}
+				
+				if(refreshProgressIndicator != null){
+					refreshProgressIndicator.collapseActionView();
+					refreshProgressIndicator.setActionView(null);
+					refreshProgressIndicator = null;
+				}
+
+			}
+		});				
+	}
+	
 }
