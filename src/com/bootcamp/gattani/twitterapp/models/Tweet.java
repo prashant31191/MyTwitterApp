@@ -11,8 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -149,7 +147,7 @@ public class Tweet extends Model implements Comparable<Tweet> {
      * @return
      */
 	public static List<Tweet> getStoredTweets() {    
-        return new Select().from(Tweet.class).orderBy("CreatedTs DEC").limit("300").execute();
+        return new Select().from(Tweet.class).limit("25").execute();
     }
     
     /**
@@ -159,14 +157,10 @@ public class Tweet extends Model implements Comparable<Tweet> {
     public static void storeTweets(List<Tweet> tweets){
     	//store 25 tweets
 		for(int i = 0; i < tweets.size() && i < 25; i++){
-			Log.d("DEBUG", "i=" + i);
 			Tweet t = tweets.get(i);
-			Tweet toSave = new Tweet();
-			toSave.jsonObject = t.jsonObject;
-			toSave.user = t.user;
-			toSave.createdTs = t.createdTs;
-			toSave.save();
-			
+			User u = tweets.get(i).user;
+			u.save();
+			t.save();
 		}
     }
 
@@ -185,11 +179,10 @@ public class Tweet extends Model implements Comparable<Tweet> {
     	
     	//store 25 tweets
 		for(int i = 0; i < tweets.size() && i < 25; i++){
-			Tweet toSave = new Tweet();
-			toSave.jsonObject = tweets.get(i).jsonObject;
-			toSave.user = tweets.get(i).user;
-			toSave.createdTs = tweets.get(i).createdTs;
-			toSave.save();
+			Tweet t = tweets.get(i);
+			User u = tweets.get(i).user;
+			u.save();
+			t.save();
 		}
     }	
 }

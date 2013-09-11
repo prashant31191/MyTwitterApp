@@ -3,7 +3,7 @@ package com.bootcamp.gattani.twitterapp;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.Toast;
+import android.util.Log;
  
 public class ConnectionDetector {
      
@@ -31,11 +31,14 @@ public class ConnectionDetector {
     public boolean isConnected(){
     	ConnectionType conn = getConnection();
         if (conn == ConnectionType.TYPE_WIFI) {
-            Toast.makeText(context, "Connected to Wifi", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Connected to Wifi", Toast.LENGTH_SHORT).show();
+            Log.d("DEBUG", "Connected to Wifi");
         } else if (conn == ConnectionType.TYPE_MOBILE) {
-        	Toast.makeText(context, "Connected to Mobile N/W", Toast.LENGTH_SHORT).show();
+        	Log.d("DEBUG", "Connected to Mobile N/W");
+        	//Toast.makeText(context, "Connected to Mobile N/W", Toast.LENGTH_SHORT).show();
         } else if (conn == ConnectionType.TYPE_NOT_CONNECTED) {
-        	Toast.makeText(context, "Not Connected", Toast.LENGTH_SHORT).show();
+        	Log.d("DEBUG", "Not Connected");
+        	//Toast.makeText(context, "Not Connected", Toast.LENGTH_SHORT).show();
         }
         
         return (conn != ConnectionType.TYPE_NOT_CONNECTED);

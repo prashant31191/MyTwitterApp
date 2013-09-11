@@ -60,15 +60,8 @@ public class HomeTimelineActivity extends Activity {
 				}    			
 			}
 		});
-		
-		
-		if(MyTwitterApp.getConnectionDetector().isConnected()){
-			Toast.makeText(getBaseContext(), "Connected ...", Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(getBaseContext(), "No connection could be established ...", Toast.LENGTH_SHORT).show();
-		}
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds the compose and refresh
@@ -173,7 +166,7 @@ public class HomeTimelineActivity extends Activity {
 	 * @param overWriteLocal
 	 * @param resetView
 	 */
-	private void getHomeTimeline(RequestParams rparams, final boolean overWriteLocal, final boolean resetView){		
+	private void getHomeTimeline(RequestParams rparams, final boolean overWriteLocal, final boolean resetView){	
 		//get timeline feed
 		MyTwitterApp.getRestClient().getHomeTimeline(rparams, new JsonHttpResponseHandler() {
 			@Override
@@ -188,9 +181,9 @@ public class HomeTimelineActivity extends Activity {
 				}
 				
 				if(overWriteLocal){
-				//	Tweet.overWriteTweets(tweets);					
+					Tweet.overWriteTweets(tweets);					
 				} else {
-				//	Tweet.storeTweets(tweets);
+					Tweet.storeTweets(tweets);
 				}
 				
 				if(refreshProgressIndicator != null){
@@ -199,6 +192,21 @@ public class HomeTimelineActivity extends Activity {
 					refreshProgressIndicator = null;
 				}
 
+			}
+			
+			@Override
+			public void onFailure(Throwable error, String content){
+				Toast.makeText(getBaseContext(), "Offline ... loading stored tweets", Toast.LENGTH_SHORT).show();
+				tweets.clear();
+				tweets.addAll(Tweet.getStoredTweets());
+				Collections.sort(tweets);
+				lvTweets.smoothScrollToPosition(0);
+				if(refreshProgressIndicator != null){
+					refreshProgressIndicator.collapseActionView();
+					refreshProgressIndicator.setActionView(null);
+					refreshProgressIndicator = null;
+				}
+				return;
 			}
 		});				
 	}
