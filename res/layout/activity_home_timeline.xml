@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     tools:context=".HomeTimelineActivity" >
 
+    <!--
     <ListView
         android:id="@+id/lvTweets"
         android:layout_width="match_parent"
@@ -11,5 +12,14 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" >
     </ListView>
+    -->
+    
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        android:id="@+id/lvTweets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
+    </com.handmark.pulltorefresh.library.PullToRefreshListView>
     
 </RelativeLayout>

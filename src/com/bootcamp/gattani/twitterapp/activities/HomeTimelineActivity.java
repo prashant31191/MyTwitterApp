@@ -20,11 +20,14 @@ import com.bootcamp.gattani.twitterapp.R;
 import com.bootcamp.gattani.twitterapp.adapters.TweetsAdapter;
 import com.bootcamp.gattani.twitterapp.listeners.EndlessScrollListener;
 import com.bootcamp.gattani.twitterapp.models.Tweet;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class HomeTimelineActivity extends Activity {
-	private ListView lvTweets;
+	private PullToRefreshListView lvTweets;
 	private ArrayList<Tweet> tweets;
 	private TweetsAdapter tweetLvAdapter;
 	private MenuItem refreshProgressIndicator;
@@ -40,26 +43,40 @@ public class HomeTimelineActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home_timeline);
-		lvTweets = (ListView)findViewById(R.id.lvTweets);			
+		lvTweets = (PullToRefreshListView)findViewById(R.id.lvTweets);			
 		tweets = new ArrayList<Tweet>();
-		tweetLvAdapter = new TweetsAdapter(getBaseContext(), tweets);
-		lvTweets.setAdapter(tweetLvAdapter); 
+//		tweetLvAdapter = new TweetsAdapter(getBaseContext(), tweets);
+//		lvTweets.setAdapter(tweetLvAdapter); 
 
 		//get timeline feed
 		getHomeTimeLineByInvoction(GET.ON_LOAD);
 
 		//setup the endless scroll
-		lvTweets.setOnScrollListener(new EndlessScrollListener() {
-			@Override
-			public void loadMore(int page, int totalItemsCount) {  	  
-				//artificially clipped to not load more than 200 tweets when scrolling 
-				if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
-					getHomeTimeLineByInvoction(GET.ON_SCROLL);
-				} else {
-					Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
-				}    			
-			}
+//		lvTweets.setOnScrollListener(new EndlessScrollListener() {
+//			@Override
+//			public void loadMore(int page, int totalItemsCount) {  	  
+//				//artificially clipped to not load more than 200 tweets when scrolling 
+//				//if(tweets != null && !tweets.isEmpty() && tweets.size() < 200){
+//				Log.d("DEBUG", "tweets.size() = " + tweets.size());
+//				if(tweets.size() < 200){
+//					getHomeTimeLineByInvoction(GET.ON_SCROLL);
+//				} else {
+//					Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
+//				}    			
+//			}
+//		});
+		
+		//set pull to refresh
+		lvTweets.setOnRefreshListener(new OnRefreshListener<ListView>() {
+		    @Override
+		    public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+		        // Do work to refresh the list here.
+		    	getHomeTimeLineByInvoction(GET.ON_REFRESH);
+		    }
 		});
+		
+		tweetLvAdapter = new TweetsAdapter(getBaseContext(), tweets);
+		lvTweets.setAdapter(tweetLvAdapter); 
 	}
 	
 	@Override
@@ -174,10 +191,10 @@ public class HomeTimelineActivity extends Activity {
 				tweets.addAll(Tweet.fromJson(jsonTweets));
 				Collections.sort(tweets);
 				Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
-				tweetLvAdapter.notifyDataSetChanged();
+				//tweetLvAdapter.notifyDataSetChanged();
 				if(resetView){
 					//scroll to top
-					lvTweets.smoothScrollToPosition(0);
+					lvTweets.getRefreshableView().smoothScrollToPosition(0);
 				}
 				
 				if(overWriteLocal){
@@ -191,6 +208,9 @@ public class HomeTimelineActivity extends Activity {
 					refreshProgressIndicator.setActionView(null);
 					refreshProgressIndicator = null;
 				}
+				//notify pull to refresh
+				lvTweets.onRefreshComplete();
+				tweetLvAdapter.notifyDataSetChanged();
 
 			}
 			
@@ -200,7 +220,10 @@ public class HomeTimelineActivity extends Activity {
 				tweets.clear();
 				tweets.addAll(Tweet.getStoredTweets());
 				Collections.sort(tweets);
-				lvTweets.smoothScrollToPosition(0);
+				lvTweets.getRefreshableView().smoothScrollToPosition(0);
+				//notify pull to refresh
+				lvTweets.onRefreshComplete();
+				tweetLvAdapter.notifyDataSetChanged();
 				if(refreshProgressIndicator != null){
 					refreshProgressIndicator.collapseActionView();
 					refreshProgressIndicator.setActionView(null);
