@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bootcamp.gattani.twitterapp.MyTwitterApp;
@@ -23,8 +22,11 @@ import com.bootcamp.gattani.twitterapp.models.Tweet;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import eu.erikw.PullToRefreshListView;
+import eu.erikw.PullToRefreshListView.OnRefreshListener;
+
 public class HomeTimelineActivity extends Activity {
-	private ListView lvTweets;
+	private PullToRefreshListView lvTweets;
 	private ArrayList<Tweet> tweets;
 	private TweetsAdapter tweetLvAdapter;
 	private MenuItem refreshProgressIndicator;
@@ -40,7 +42,7 @@ public class HomeTimelineActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home_timeline);
-		lvTweets = (ListView)findViewById(R.id.lvTweets);			
+		lvTweets = (PullToRefreshListView)findViewById(R.id.lvTweets);			
 		tweets = new ArrayList<Tweet>();
 		tweetLvAdapter = new TweetsAdapter(getBaseContext(), tweets);
 		lvTweets.setAdapter(tweetLvAdapter); 
@@ -58,6 +60,14 @@ public class HomeTimelineActivity extends Activity {
 				} else {
 					Toast.makeText(getBaseContext(), "End of tweets ...", Toast.LENGTH_SHORT).show();
 				}    			
+			}
+		});
+		
+		lvTweets.setOnRefreshListener(new OnRefreshListener() {
+			
+			@Override
+			public void onRefresh() {
+				getHomeTimeLineByInvoction(GET.ON_REFRESH);
 			}
 		});
 	}
@@ -175,6 +185,7 @@ public class HomeTimelineActivity extends Activity {
 				Collections.sort(tweets);
 				Log.d("DEBUG", Arrays.deepToString(tweets.toArray()));
 				tweetLvAdapter.notifyDataSetChanged();
+				lvTweets.onRefreshComplete();
 				if(resetView){
 					//scroll to top
 					lvTweets.smoothScrollToPosition(0);
@@ -210,5 +221,6 @@ public class HomeTimelineActivity extends Activity {
 			}
 		});				
 	}
+	//
 	
 }
