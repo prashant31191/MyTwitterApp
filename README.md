@@ -17,3 +17,5 @@ A simple twitter client for Android. Integrates with Twitter Rest API and OAuth 
   - Endless scroll
 * User can open the twitter app offline and see recent tweets
   - Tweets are persisted into sqlite and displayed from the local DB
+* User can pull down the list to refresh.
+  - Uses <https://github.com/erikwt/PullToRefresh-ListView> 
